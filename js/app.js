@@ -79,8 +79,23 @@ const cargarVectores = () => {
     const precioConIva = parseInt(document.getElementById('txtPrecioIVA').value);
     const cantidadProducto = parseInt(document.getElementById('txtCantidad').value);
 
-    if (nombreProducto === '' || porcentajeIva === '' || precioConIva === '' || cantidadProducto === '') {
-        console.log('Campos vacios');
+    if (nombreProducto.trim() === '' || porcentajeIva === '' || precioConIva === '' || cantidadProducto === '') {
+        swal("Campos vacios!", "Se debe completar todos los campos!", "warning");
+        return;
+    }
+
+    if (porcentajeIva < 0 || porcentajeIva > 100) {
+        swal("Dato incorrecto!", "El porcentaje del IVA debe ser un número entre 0 y 100!", "error");
+        return;
+    }
+
+    if (precioConIva < 0) {
+        swal("Dato incorrecto!", "El precio del producto debe ser un valor mayor a 0.", "error");
+        return;
+    }
+
+    if (cantidadProducto < 0) {
+        swal("Dato incorrecto!", "La cantidad del producto debe ser mayor a 0.", "error");
         return;
     }
 
@@ -94,7 +109,7 @@ const cargarVectores = () => {
     */
     precioBaseProducto = (precioConIva / (porcentajeIva + 1));
     //sacar el valor del valor del iva
-    valorIvaProducto = (precioConIva - precioBaseProducto);
+    valorIvaProducto = ((precioBaseProducto * porcentajeIva) * cantidadProducto);
     //subtotal sin iva
     subtotalSinIva = (precioBaseProducto * cantidadProducto);
     //sacar el total con iva
@@ -106,10 +121,11 @@ const cargarVectores = () => {
         nombre: nombreProducto,
         iva: porcentajeIva,
         precioIva: precioConIva,
+        precioSinIva: precioBaseProducto,
         cantidad: cantidadProducto,
         subtotalSinIva: subtotalSinIva,
         valorIva: valorIvaProducto,
-        totalConIva: precioConIva
+        totalConIva: totalConIvaProducto
     }
     //vamos a insertar los valores dentro del arreglo 
     guardarInformacion.push({ ...valores });
@@ -131,6 +147,7 @@ const mostrarVectores = () => {
           <td>${element.nombre}</td>
           <td>${(element.iva * 100)}%</td>
           <td>$${element.precioIva}</td>
+          <td>$${element.precioSinIva}</td>
           <td>${element.cantidad}</td>
           <td>$${element.subtotalSinIva}</td>
           <td>$${element.valorIva}</td>
@@ -142,6 +159,34 @@ const mostrarVectores = () => {
 }
 
 const btnAccion = e => {
+    if (e.target.classList.contains('fa-edit')) {
+        $('#agregar_nomina').modal("hide");
+    }
 
-    $('#agregar_nomina').modal("hide");
+    if (e.target.classList.contains('fa-trash')) {
+        guardarInformacion.find(element => {
+            if (element.id === parseInt(e.target.dataset.id)) {
+                swal({
+                    title: `Eliminar producto ${element.nombre}`,
+                    text: `Esta seguro de eliminar el producto ${element.nombre}`,
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                    .then((willDelete) => {
+                        if (willDelete) {
+                            guardarInformacion.splice(element, 1);
+                            swal("Producto eliminado correctamente.", {
+                                icon: "success",
+                            });
+                            mostrarVectores();
+                        } else {
+                            swal("No has eliminado el producto", "Sus datos estan ha salvo!", "success");
+                        }
+                    });
+            }
+        })
+    }
+
+    e.stopPropagation();
 }
