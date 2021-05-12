@@ -6,6 +6,20 @@ let subtotalSinIva;
 let precioBaseProducto;
 let valorIvaProducto;
 let totalConIvaProducto;
+const inputs = document.querySelectorAll('#form input')
+
+//expresiones regualares para validar la información introducida en los campos
+const expresiones = {
+    nombre: /^[a-zA-ZÀ-ÿ\s]{3,50}$/, // Letras y espacios, pueden llevar acentos.    
+    telefono: /^\d{1,10}$/, // 7 a 10 numeros.
+}
+
+const campos = {
+    nombre: false,
+    porIva: false,
+    precioConIva: false,
+    cantidad: false
+}
 
 addEventListener('DOMContentLoaded', () => {
     $(document).ready(function () {
@@ -47,6 +61,52 @@ addEventListener('DOMContentLoaded', () => {
     mostrarVectores();
 });
 
+const validarFormulario = (e) => {
+    switch (e.target.name) {
+        case 'txtNombreProd':
+            if (expresiones.nombre.test(e.target.value)) {
+                campos[nombre] = true;
+            } else {
+                swal("Campo incorrecto!", "El nombre del producto no puede estar vació ni contener números.", "error");
+                campos[nombre] = false;
+            }
+            break;
+
+        case 'txtPorIVA':
+            if (expresiones.telefono.test(e.target.value)) {
+                campos[porIva] = true;
+            } else {
+                swal("Campo incorrecto!", "El valor del porcentaje del IVA debe ser un número y no puede estar vació el campo.", "error");
+                campos[porIva] = false;
+            }
+            break;
+
+        case 'txtPrecioIVA':
+            if (expresiones.telefono.test(e.target.value)) {
+                campos[precioConIva] = true;
+            } else {
+                swal("Campo incorrecto!", "El valor del precio del producto debe ser un número, no se colocar separadores (ni puntos no comas) y no puede estar vació el campo.", "error");
+                campos[precioConIva] = false;
+            }
+            break;
+
+        case 'txtCantidad':
+            if (expresiones.telefono.test(e.target.value)) {
+                campos[cantidad] = true;
+            } else {
+                swal("Campo incorrecto!", "En valor de la cantidad debe ser un número y no puede estar vació el campo.", "error");
+                campos[cantidad] = false;
+            }
+            break;
+    }
+}
+
+//les vamos a agregar un evento a cada uno de los inputs del formulario
+inputs.forEach(input => {
+    // input.addEventListener('keyup', validarFormulario)
+    input.addEventListener('blur', validarFormulario)
+})
+
 form.addEventListener('submit', e => {
     e.preventDefault();
     cargarVectores();
@@ -55,23 +115,6 @@ form.addEventListener('submit', e => {
 mostrarDatos.addEventListener('click', e => {
     btnAccion(e);
 })
-
-// const realizarCalculos = () => {
-//     //sacar el precio base del producto (precio sin iva)
-//     //1. Pasar el valor del iva a decimal
-//     porcentajeIva = (porcentajeIva / 100);
-//     /*
-//     Para calcular el valor del iva se debe dividir el valor total del producto (valor con iva),
-//     entre el valor del iva + 1
-//     */
-//     precioBaseProducto = (precioConIva / (porcentajeIva + 1));
-//     //sacar el valor del valor del iva
-//     valorIvaProducto = (precioConIva - precioBaseProducto);
-//     //subtotal sin iva
-//     subtotalSinIva = (precioBaseProducto * cantidadProducto);
-//     //sacar el total con iva
-//     totalConIvaProducto = (precioConIva * cantidadProducto);
-// }
 
 const cargarVectores = () => {
     const nombreProducto = document.getElementById('txtNombreProd').value;
@@ -158,6 +201,18 @@ const mostrarVectores = () => {
     })
 }
 
+const eliminarElemento = (arr, item) => {
+    let i = arr.indexOf(item);
+
+    if (i !== -1) {
+        arr.splice(i, 1);
+        swal("Empleado eliminado correctamente.", {
+            icon: "success",
+        });
+        mostrarVectores();
+    }
+}
+
 const btnAccion = e => {
     if (e.target.classList.contains('fa-edit')) {
         $('#agregar_nomina').modal("hide");
@@ -175,7 +230,7 @@ const btnAccion = e => {
                 })
                     .then((willDelete) => {
                         if (willDelete) {
-                            guardarInformacion.splice(element, 1);
+                            eliminarElemento(guardarInformacion, element)
                             swal("Producto eliminado correctamente.", {
                                 icon: "success",
                             });
