@@ -1,7 +1,6 @@
 const form = document.querySelector('#form');
 let mostrarDatos = document.getElementById('fila-mostrar-datos');
 let guardarInformacion = [];
-// console.log(guardarInformacion);
 let subtotalSinIva;
 let precioBaseProducto;
 let valorIvaProducto;
@@ -11,7 +10,7 @@ const inputs = document.querySelectorAll('#form input')
 //expresiones regualares para validar la información introducida en los campos
 const expresiones = {
     nombre: /^[a-zA-ZÀ-ÿ\s]{3,50}$/, // Letras y espacios, pueden llevar acentos.    
-    telefono: /^\d{1,10}$/, // 7 a 10 numeros.
+    telefono: /^\d{1,10}$/, // 1 a 10 numeros.
 }
 
 const campos = {
@@ -65,37 +64,33 @@ const validarFormulario = (e) => {
     switch (e.target.name) {
         case 'txtNombreProd':
             if (expresiones.nombre.test(e.target.value)) {
-                campos[nombre] = true;
+                campos['nombre'] = true;
             } else {
-                swal("Campo incorrecto!", "El nombre del producto no puede estar vació ni contener números.", "error");
-                campos[nombre] = false;
+                swal("Dato incorrecto!", "El valor introducido en el campo nombre producto es incorrecto. Intente nuevamente.", "error");
             }
             break;
 
         case 'txtPorIVA':
-            if (expresiones.telefono.test(e.target.value)) {
-                campos[porIva] = true;
+            if (expresiones.telefono.test(parseInt(e.target.value))) {
+                campos['porIva'] = true;
             } else {
-                swal("Campo incorrecto!", "El valor del porcentaje del IVA debe ser un número y no puede estar vació el campo.", "error");
-                campos[porIva] = false;
+                swal("Dato incorrecto!", "El valor introducido en el campo porcentaje IVA producto es incorrecto. Intente nuevamente.", "error");
             }
             break;
 
         case 'txtPrecioIVA':
-            if (expresiones.telefono.test(e.target.value)) {
-                campos[precioConIva] = true;
+            if (expresiones.telefono.test(parseInt(e.target.value))) {
+                campos['precioConIva'] = true;
             } else {
-                swal("Campo incorrecto!", "El valor del precio del producto debe ser un número, no se colocar separadores (ni puntos no comas) y no puede estar vació el campo.", "error");
-                campos[precioConIva] = false;
+                swal("Dato incorrecto!", "El valor introducido en el campo precio producto con IVA es incorrecto. Intente nuevamente.", "error");
             }
             break;
 
         case 'txtCantidad':
-            if (expresiones.telefono.test(e.target.value)) {
-                campos[cantidad] = true;
+            if (expresiones.telefono.test(parseInt(e.target.value))) {
+                campos['cantidad'] = true;
             } else {
-                swal("Campo incorrecto!", "En valor de la cantidad debe ser un número y no puede estar vació el campo.", "error");
-                campos[cantidad] = false;
+                swal("Dato incorrecto!", "El valor introducido en el campo cantidad producto es incorrecto. Intente nuevamente.", "error");
             }
             break;
     }
@@ -104,7 +99,7 @@ const validarFormulario = (e) => {
 //les vamos a agregar un evento a cada uno de los inputs del formulario
 inputs.forEach(input => {
     // input.addEventListener('keyup', validarFormulario)
-    input.addEventListener('blur', validarFormulario)
+    input.addEventListener('blur', validarFormulario);
 })
 
 form.addEventListener('submit', e => {
@@ -117,64 +112,70 @@ mostrarDatos.addEventListener('click', e => {
 })
 
 const cargarVectores = () => {
-    const nombreProducto = document.getElementById('txtNombreProd').value;
-    let porcentajeIva = parseInt(document.getElementById('txtPorIVA').value);
-    const precioConIva = parseInt(document.getElementById('txtPrecioIVA').value);
-    const cantidadProducto = parseInt(document.getElementById('txtCantidad').value);
 
-    if (nombreProducto.trim() === '' || porcentajeIva === '' || precioConIva === '' || cantidadProducto === '') {
-        swal("Campos vacios!", "Se debe completar todos los campos!", "warning");
+    if (campos.nombre === false || campos.porIva === false || campos.precioConIva === false || campos.cantidad === false) {
+        swal("Datos incorrectos!", "Los datos introducidos en los campos son incorrectos. Intente nuevamente!", "error");
         return;
-    }
+    } else {
+        const nombreProducto = document.getElementById('txtNombreProd').value;
+        let porcentajeIva = parseInt(document.getElementById('txtPorIVA').value);
+        const precioConIva = parseInt(document.getElementById('txtPrecioIVA').value);
+        const cantidadProducto = parseInt(document.getElementById('txtCantidad').value);
 
-    if (porcentajeIva < 0 || porcentajeIva > 100) {
-        swal("Dato incorrecto!", "El porcentaje del IVA debe ser un número entre 0 y 100!", "error");
-        return;
-    }
+        if (nombreProducto.length <= 0 || nombreProducto.trim() === '' || porcentajeIva === null || precioConIva === null || cantidadProducto === null) {
+            swal("Campos vacios!", "Ningún campo puede estar vacio, todos son obligatorios. Intene nuevamente!", "warning");
+            return;
+        }
 
-    if (precioConIva < 0) {
-        swal("Dato incorrecto!", "El precio del producto debe ser un valor mayor a 0.", "error");
-        return;
-    }
+        if (porcentajeIva <= 0 || porcentajeIva > 100) {
+            swal("Campo incorrecto!", "El valor del campo porcentaje IVA debe ser un número entero entre 1 y 100. Intene nuevamente!", "warning");
+            return;
+        }
 
-    if (cantidadProducto < 0) {
-        swal("Dato incorrecto!", "La cantidad del producto debe ser mayor a 0.", "error");
-        return;
-    }
+        if (precioConIva <= 0) {
+            swal("Campo incorrecto!", "El valor del campo precio del producto con IVA, debe ser un número entero mayor a 0; no debe contener ni puntos ni comas. Intene nuevamente!", "warning");
+            return;
+        }
+        if (cantidadProducto <= 0) {
+            swal("Campo incorrecto!", "El valor del campo cantidad producto debe ser un número mayor a 0. Intene nuevamente!", "warning");
+            return;
+        }
 
-    //operaciones
-    //sacar el precio base del producto (precio sin iva)
-    //1. Pasar el valor del iva a decimal
-    porcentajeIva = (porcentajeIva / 100);
-    /*
-    Para calcular el valor del iva se debe dividir el valor total del producto (valor con iva),
-    entre el valor del iva + 1
-    */
-    precioBaseProducto = (precioConIva / (porcentajeIva + 1));
-    //sacar el valor del valor del iva
-    valorIvaProducto = ((precioBaseProducto * porcentajeIva) * cantidadProducto);
-    //subtotal sin iva
-    subtotalSinIva = (precioBaseProducto * cantidadProducto);
-    //sacar el total con iva
-    totalConIvaProducto = (precioConIva * cantidadProducto);
+        //operaciones
+        //sacar el precio base del producto (precio sin iva)
+        //1. Pasar el valor del iva a decimal
+        porcentajeIva = (porcentajeIva / 100);
+        /*
+        Para calcular el valor del iva se debe dividir el valor total del producto (valor con iva),
+        entre el valor del iva + 1
+        */
+        precioBaseProducto = (precioConIva / (porcentajeIva + 1));
+        //sacar el valor del valor del iva
+        valorIvaProducto = ((precioBaseProducto * porcentajeIva) * cantidadProducto);
+        //subtotal sin iva
+        subtotalSinIva = (precioBaseProducto * cantidadProducto);
+        //sacar el total con iva
+        totalConIvaProducto = (precioConIva * cantidadProducto);
 
-    //crear el objeto que vamos a almacenar
-    const valores = {
-        id: Date.now(),
-        nombre: nombreProducto,
-        iva: porcentajeIva,
-        precioIva: precioConIva,
-        precioSinIva: precioBaseProducto,
-        cantidad: cantidadProducto,
-        subtotalSinIva: subtotalSinIva,
-        valorIva: valorIvaProducto,
-        totalConIva: totalConIvaProducto
+        //crear el objeto que vamos a almacenar
+        const valores = {
+            id: Date.now(),
+            nombre: nombreProducto,
+            iva: porcentajeIva,
+            precioIva: precioConIva,
+            precioSinIva: precioBaseProducto,
+            cantidad: cantidadProducto,
+            subtotalSinIva: subtotalSinIva,
+            valorIva: valorIvaProducto,
+            totalConIva: totalConIvaProducto
+        }
+        //vamos a insertar los valores dentro del arreglo 
+        guardarInformacion.push({ ...valores });
+        form.reset();
+        window.location.reload();
+        $('#agregar_nomina').modal("hide");//nos derigimos a la modal y lo ocultamos
+        mostrarVectores();
     }
-    //vamos a insertar los valores dentro del arreglo 
-    guardarInformacion.push({ ...valores });
-    form.reset();
-    $('#agregar_nomina').modal("hide");//nos derigimos a la modal y lo ocultamos
-    mostrarVectores();
 }
 
 const mostrarVectores = () => {
@@ -195,7 +196,7 @@ const mostrarVectores = () => {
           <td>$${element.subtotalSinIva}</td>
           <td>$${element.valorIva}</td>
           <td>$${element.totalConIva}</td>
-          <td><span class="fas fa-edit" role="button" data-id=${element.id}></span> | <span class="fas fa-trash" role="button" data-id=${element.id}></span></td>
+          <td><span class="fas fa-trash text-center" role="button" data-id=${element.id}></span></td>
         </tr>`
         // console.log(mostrarDatos);
     })
@@ -206,7 +207,7 @@ const eliminarElemento = (arr, item) => {
 
     if (i !== -1) {
         arr.splice(i, 1);
-        swal("Empleado eliminado correctamente.", {
+        swal("Producto eliminado correctamente.", {
             icon: "success",
         });
         mostrarVectores();
@@ -214,9 +215,7 @@ const eliminarElemento = (arr, item) => {
 }
 
 const btnAccion = e => {
-    if (e.target.classList.contains('fa-edit')) {
-        $('#agregar_nomina').modal("hide");
-    }
+    // handleEdit(e.target.dataset.id);
 
     if (e.target.classList.contains('fa-trash')) {
         guardarInformacion.find(element => {
@@ -230,10 +229,7 @@ const btnAccion = e => {
                 })
                     .then((willDelete) => {
                         if (willDelete) {
-                            eliminarElemento(guardarInformacion, element)
-                            swal("Producto eliminado correctamente.", {
-                                icon: "success",
-                            });
+                            eliminarElemento(guardarInformacion, element);
                             mostrarVectores();
                         } else {
                             swal("No has eliminado el producto", "Sus datos estan ha salvo!", "success");
