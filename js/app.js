@@ -119,7 +119,7 @@ const cargarVectores = () => {
     } else {
         const nombreProducto = document.getElementById('txtNombreProd').value;
         let porcentajeIva = parseInt(document.getElementById('txtPorIVA').value);
-        const precioConIva = parseInt(document.getElementById('txtPrecioIVA').value);
+        let precioConIva = parseInt(document.getElementById('txtPrecioIVA').value);
         const cantidadProducto = parseInt(document.getElementById('txtCantidad').value);
 
         if (nombreProducto.length <= 0 || nombreProducto.trim() === '' || porcentajeIva === null || precioConIva === null || cantidadProducto === null) {
@@ -157,6 +157,20 @@ const cargarVectores = () => {
         //sacar el total con iva
         totalConIvaProducto = (precioConIva * cantidadProducto);
 
+        /*
+        * Darle formato de número a moneda
+        */
+        const formatterPeso = new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0
+        })
+        precioConIva = formatterPeso.format(precioConIva);
+        precioBaseProducto = formatterPeso.format(precioBaseProducto);
+        subtotalSinIva = formatterPeso.format(subtotalSinIva);
+        valorIvaProducto = formatterPeso.format(valorIvaProducto);
+        totalConIvaProducto = formatterPeso.format(totalConIvaProducto);
+
         //crear el objeto que vamos a almacenar
         const valores = {
             id: Date.now(),
@@ -190,12 +204,12 @@ const mostrarVectores = () => {
           <td>${element.id}</td>
           <td>${element.nombre}</td>
           <td>${(element.iva * 100)}%</td>
-          <td>$${element.precioIva}</td>
-          <td>$${element.precioSinIva}</td>
+          <td>${element.precioIva}</td>
+          <td>${element.precioSinIva}</td>
           <td>${element.cantidad}</td>
-          <td>$${element.subtotalSinIva}</td>
-          <td>$${element.valorIva}</td>
-          <td>$${element.totalConIva}</td>
+          <td>${element.subtotalSinIva}</td>
+          <td>${element.valorIva}</td>
+          <td>${element.totalConIva}</td>
           <td><span class="fas fa-trash text-center" role="button" data-id=${element.id}></span></td>
         </tr>`
         // console.log(mostrarDatos);
