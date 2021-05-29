@@ -58,7 +58,9 @@ addEventListener('DOMContentLoaded', () => {
                     "copy": "Copiar",
                     "colvis": "Visibilidad"
                 }
-            }
+            },
+            dom: 'Bfrtip',
+            buttons: ['copy', 'excel']
         });
     });
     if (localStorage.getItem('producto')) {
@@ -71,9 +73,37 @@ addEventListener('DOMContentLoaded', () => {
     }
     if (localStorage.getItem('contador')) {
         contador = JSON.parse(localStorage.getItem('contador'));
-        guardarCliente();
+        // guardarCliente();
     }
+    document.querySelector('#exportar-pdf').addEventListener('click', () => {
+        generarPdf();
+    })
 });
+
+const generarPdf = () => {
+    const documentoAConvertir = document.querySelector('#elementos-para-convertir');
+    html2pdf()
+        .set({
+            margin: 0.5,
+            filename: 'Sistema de Facturación.pdf',
+            image: {
+                type: 'jpeg',
+                quiality: 0.98
+            },
+            html2canvas: {
+                scale: 3,
+                letterRendering: true
+            },
+            jsPDF: {
+                unit: "in",
+                format: "a3",
+                orientation: 'Portrait'
+            }
+        })
+        .from(documentoAConvertir)
+        .save()
+        .catch(err => console.log(err));
+}
 
 const validarFormulario = (e) => {
     switch (e.target.name) {
@@ -204,6 +234,8 @@ const guardarCliente = () => {
             mostrarDatosCliente();
         } else {
             swal("Error", `No puede agregar más de un cliente para una misma facturación`, "warning");
+            formCliente.reset();
+            $('#agregar_cliente').modal("hide");//nos derigimos a la modal y lo ocultamos
             inputsCliente.forEach(input => input.setAttribute('disabled', 'disabled'));
             document.getElementById('boton-cliente').setAttribute('disabled', 'disabled');
             mostrarDatosCliente();

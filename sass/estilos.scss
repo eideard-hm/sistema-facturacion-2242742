@@ -10,3 +10,16 @@ body {
     background-color: rgba(255, 255, 255, 0.514);
     border-radius: 5px;
 }
+
+#exportar-pdf {
+    border: none;
+    border-radius: 2px;
+    outline: none;
+    width: 35px;
+    height: 35px;
+}
+
+#exportar-pdf i {
+    background: #f00;
+    font-size: 25px;
+}
