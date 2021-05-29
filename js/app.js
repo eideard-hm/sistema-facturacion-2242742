@@ -1,11 +1,14 @@
 const form = document.querySelector('#form');
+const formCliente = document.querySelector('#formCliente');
 let mostrarDatos = document.getElementById('fila-mostrar-datos');
+let mostrarTotales = document.getElementById('mostrar-totales');
+const datosCliente = document.querySelector('#datos-cliente');
+const nuevaFacturacion = document.querySelector('#nueva-facturacion');
+let guardarDatosCliente = [];
 let guardarInformacion = [];
-let subtotalSinIva;
-let precioBaseProducto;
-let valorIvaProducto;
-let totalConIvaProducto;
 const inputs = document.querySelectorAll('#form input')
+const inputsCliente = document.querySelectorAll('#formCliente input');
+let contador = 0;
 
 //expresiones regualares para validar la información introducida en los campos
 const expresiones = {
@@ -14,6 +17,10 @@ const expresiones = {
 }
 
 const campos = {
+    nombrePersona: false,
+    apellidos: false,
+    numDoc: false,
+    telefono: false,
     nombre: false,
     porIva: false,
     precioConIva: false,
@@ -56,12 +63,48 @@ addEventListener('DOMContentLoaded', () => {
     });
     if (localStorage.getItem('producto')) {
         guardarInformacion = JSON.parse(localStorage.getItem('producto'));
+        mostrarVectores();
     }
-    mostrarVectores();
+    if (localStorage.getItem('cliente')) {
+        guardarDatosCliente = JSON.parse(localStorage.getItem('cliente'));
+        mostrarDatosCliente();
+    }
+    if (localStorage.getItem('contador')) {
+        contador = JSON.parse(localStorage.getItem('contador'));
+        guardarCliente();
+    }
 });
 
 const validarFormulario = (e) => {
     switch (e.target.name) {
+        case 'txtNombreCli':
+            if (expresiones.nombre.test(e.target.value)) {
+                campos['nombrePersona'] = true;
+            } else {
+                swal("Dato incorrecto!", "El valor introducido en el campo nombre producto es incorrecto. Intente nuevamente.", "error");
+            }
+            break;
+        case 'txtApellidosCli':
+            if (expresiones.nombre.test(e.target.value)) {
+                campos['apellidos'] = true;
+            } else {
+                swal("Dato incorrecto!", "El valor introducido en el campo nombre producto es incorrecto. Intente nuevamente.", "error");
+            }
+            break;
+        case 'txtNumDocCli':
+            if (expresiones.telefono.test(e.target.value)) {
+                campos['numDoc'] = true;
+            } else {
+                swal("Dato incorrecto!", "El valor introducido en el campo nombre producto es incorrecto. Intente nuevamente.", "error");
+            }
+            break;
+        case 'txtTelefonoCli':
+            if (expresiones.telefono.test(e.target.value)) {
+                campos['telefono'] = true;
+            } else {
+                swal("Dato incorrecto!", "El valor introducido en el campo nombre producto es incorrecto. Intente nuevamente.", "error");
+            }
+            break;
         case 'txtNombreProd':
             if (expresiones.nombre.test(e.target.value)) {
                 campos['nombre'] = true;
@@ -102,14 +145,95 @@ inputs.forEach(input => {
     input.addEventListener('blur', validarFormulario);
 })
 
+inputsCliente.forEach(input => {
+    // input.addEventListener('keyup', validarFormulario)
+    input.addEventListener('blur', validarFormulario);
+})
+
 form.addEventListener('submit', e => {
     e.preventDefault();
     cargarVectores();
 })
 
+formCliente.addEventListener('submit', e => {
+    e.preventDefault();
+    guardarCliente();
+})
+
 mostrarDatos.addEventListener('click', e => {
     btnAccion(e);
 })
+
+nuevaFacturacion.addEventListener('click', () => {
+    guardarInformacion = [];
+    guardarDatosCliente = [];
+    contador = 0;
+    localStorage.removeItem('contador');
+    mostrarVectores();
+    mostrarDatosCliente();
+    window.location.reload();
+})
+
+const guardarCliente = () => {
+    if (campos.nombrePersona === false || campos.apellidos === false || campos.numDoc === false
+        || campos.telefono === false) {
+        swal("Datos incorrectos!", "Los datos introducidos en los campos son incorrectos. Intente nuevamente!", "error");
+    } else {
+        const nombreCliente = document.getElementById('txtNombreCli').value;
+        const apellidoCliente = document.getElementById('txtApellidosCli').value;
+        const numDocCliente = document.getElementById('txtNumDocCli').value;
+        const telefonoCliente = document.getElementById('txtTelefonoCli').value;
+
+        const datosCliente = {
+            id: Date.now(),
+            nombreCliente,
+            apellidoCliente,
+            numDocCliente,
+            telefonoCliente
+        }
+
+        if (contador === 0) {
+            contador = 1;
+            localStorage.setItem('contador', JSON.stringify(contador))
+            guardarDatosCliente.push(datosCliente);
+            swal("Registro exitoso", `El cliente ${datosCliente.nombreCliente} ha sido registrado exitosamente :)`, "success");
+            formCliente.reset();
+            $('#agregar_cliente').modal("hide");//nos derigimos a la modal y lo ocultamos
+            inputsCliente.forEach(input => input.setAttribute('disabled', 'disabled'));
+            document.getElementById('boton-cliente').setAttribute('disabled', 'disabled');
+            mostrarDatosCliente();
+        } else {
+            swal("Error", `No puede agregar más de un cliente para una misma facturación`, "warning");
+            inputsCliente.forEach(input => input.setAttribute('disabled', 'disabled'));
+            document.getElementById('boton-cliente').setAttribute('disabled', 'disabled');
+            mostrarDatosCliente();
+        }
+    }
+}
+const mostrarDatosCliente = () => {
+    localStorage.setItem('cliente', JSON.stringify(guardarDatosCliente));
+    guardarDatosCliente.innerHTML = '';
+    guardarDatosCliente.forEach(element => {
+        datosCliente.innerHTML = `
+            <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-dark">
+                Nombre:
+                <button type="button" class="btn btn-outline-dark">${element.nombreCliente}</button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-warning"">
+                Apellidos:
+                <button type="button" class="btn btn-outline-dark">${element.apellidoCliente}</button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-dark">
+                Número de documento:
+                <button type="button" class="btn btn-outline-dark">${element.numDocCliente}</button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-warning"">
+                Número de teléfono:
+                <button type="button" class="btn btn-outline-dark">${element.telefonoCliente}</button>
+            </li>
+        `
+    })
+}
 
 const cargarVectores = () => {
 
@@ -122,13 +246,18 @@ const cargarVectores = () => {
         let precioConIva = parseInt(document.getElementById('txtPrecioIVA').value);
         const cantidadProducto = parseInt(document.getElementById('txtCantidad').value);
 
+        let subtotalSinIva = 0;
+        let precioBaseProducto = 0;
+        let valorIvaProducto = 0;
+        let totalConIvaProducto = 0;
+
         if (nombreProducto.length <= 0 || nombreProducto.trim() === '' || porcentajeIva === null || precioConIva === null || cantidadProducto === null) {
             swal("Campos vacios!", "Ningún campo puede estar vacio, todos son obligatorios. Intene nuevamente!", "warning");
             return;
         }
 
-        if (porcentajeIva <= 0 || porcentajeIva > 100) {
-            swal("Campo incorrecto!", "El valor del campo porcentaje IVA debe ser un número entero entre 1 y 100. Intene nuevamente!", "warning");
+        if (porcentajeIva < 0 || porcentajeIva > 100) {
+            swal("Campo incorrecto!", "El valor del campo porcentaje IVA debe ser un número entero entre 0 y 100. Intene nuevamente!", "warning");
             return;
         }
 
@@ -157,20 +286,6 @@ const cargarVectores = () => {
         //sacar el total con iva
         totalConIvaProducto = (precioConIva * cantidadProducto);
 
-        /*
-        * Darle formato de número a moneda
-        */
-        const formatterPeso = new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0
-        })
-        precioConIva = formatterPeso.format(precioConIva);
-        precioBaseProducto = formatterPeso.format(precioBaseProducto);
-        subtotalSinIva = formatterPeso.format(subtotalSinIva);
-        valorIvaProducto = formatterPeso.format(valorIvaProducto);
-        totalConIvaProducto = formatterPeso.format(totalConIvaProducto);
-
         //crear el objeto que vamos a almacenar
         const valores = {
             id: Date.now(),
@@ -185,8 +300,9 @@ const cargarVectores = () => {
         }
         //vamos a insertar los valores dentro del arreglo 
         guardarInformacion.push({ ...valores });
+        swal("Registro exitoso", `El producto ${valores.nombre} ha sido registrado exitosamente :)`, "success");
         form.reset();
-        window.location.reload();
+        // window.location.reload();
         $('#agregar_nomina').modal("hide");//nos derigimos a la modal y lo ocultamos
         mostrarVectores();
     }
@@ -195,7 +311,14 @@ const cargarVectores = () => {
 const mostrarVectores = () => {
 
     localStorage.setItem('producto', JSON.stringify(guardarInformacion));
-
+    /*
+      * Darle formato de número a moneda
+    */
+    const formatterPeso = new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        minimumFractionDigits: 0
+    })
     mostrarDatos.innerHTML = '';
     guardarInformacion.forEach(element => {
         // console.log(element);        
@@ -204,16 +327,50 @@ const mostrarVectores = () => {
           <td>${element.id}</td>
           <td>${element.nombre}</td>
           <td>${(element.iva * 100)}%</td>
-          <td>${element.precioIva}</td>
-          <td>${element.precioSinIva}</td>
+          <td>${formatterPeso.format(element.precioIva)}</td>
+          <td>${formatterPeso.format(element.precioSinIva)}</td>
           <td>${element.cantidad}</td>
-          <td>${element.subtotalSinIva}</td>
-          <td>${element.valorIva}</td>
-          <td>${element.totalConIva}</td>
+          <td>${formatterPeso.format(element.subtotalSinIva)}</td>
+          <td>${formatterPeso.format(element.valorIva)}</td>
+          <td>${formatterPeso.format(element.totalConIva)}</td>
           <td><span class="fas fa-trash text-center" role="button" data-id=${element.id}></span></td>
         </tr>`
         // console.log(mostrarDatos);
     })
+    let subtotal = guardarInformacion.reduce((total, item) => {
+        return total += item.subtotalSinIva;
+    }, 0);
+
+    let totalValorIva = guardarInformacion.reduce((total, item) => {
+        return total += item.valorIva;
+    }, 0);
+
+    let totalAPagar = guardarInformacion.reduce((total, item) => {
+        return total += item.totalConIva;
+    }, 0);
+
+    let cantidad = guardarInformacion.reduce((total, item) => {
+        return total += item.cantidad;
+    }, 0);
+
+    subtotal = formatterPeso.format(subtotal);
+    totalValorIva = formatterPeso.format(totalValorIva);
+    totalAPagar = formatterPeso.format(totalAPagar);
+
+    mostrarTotales.innerHTML = `
+    <tr>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th>Total:</th>
+        <th>${cantidad}</th>
+        <th>${subtotal}</th>
+        <th>${totalValorIva}</th>
+        <th>${totalAPagar}</th>
+        <th></th>
+    </tr>
+    `
 }
 
 const eliminarElemento = (arr, item) => {

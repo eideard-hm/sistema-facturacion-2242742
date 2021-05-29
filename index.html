@@ -17,7 +17,9 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Navbar</a>
+      <a class="navbar-brand" href="#">
+        <img src="img/Logo programa.png" alt="" width="50" height="50">
+      </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -25,26 +27,13 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              Dropdown
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="#">Action</a></li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item" href="#">Something else here</a></li>
-            </ul>
+            <a class="nav-link active" aria-current="page" href="desarrolladores.html">Desarrolladores</a>
           </li>
         </ul>
+        <form class="d-flex">
+          <span class="badge bg-light text-dark" role="button">
+            <a class="nav-link" href="login.html">Cerrrar sesión</a></span>
+        </form>
       </div>
     </div>
   </nav>
@@ -52,10 +41,24 @@
   <div class="container mt-5">
     <h2 class="text-center">Sistema de calcular IVA</h2>
     <!-- Button trigger modal -->
+    <button type="button" class="btn btn-success my-3" data-bs-toggle="modal" data-bs-target="#agregar_cliente">
+      Agregar cliente <i class="fas fa-plus-circle ms-1"></i>
+    </button>
+
     <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#agregar_nomina">
       Agregar nuevo <i class="fas fa-plus-circle ms-1"></i>
     </button>
-    <table id="example" class="table table-dark table-striped" style="width:100%">
+
+    <button type="button" class="btn btn-info my-3" id="nueva-facturacion">
+      Crear nueva facturación<i class="fas fa-plus-circle ms-1"></i>
+    </button>
+
+    <h5>Datos cliente:</h5>
+
+    <ul class="list-group mb-3" id="datos-cliente">
+    </ul>
+
+    <table id="example" class="table table-dark table-striped mt-2" style="width:100%">
       <thead>
         <tr>
           <th>Código</th>
@@ -72,22 +75,9 @@
       </thead>
       <tbody id="fila-mostrar-datos">
       </tbody>
-      <tfoot>
-        <tr>
-          <th>Código</th>
-          <th>Nombre Producto</th>
-          <th>% IVA</th>
-          <th>Precio con IVA</th>
-          <th>Precio sin IVA</th>
-          <th>Cantidad</th>
-          <th>Subtotal sin IVA</th>
-          <th>Valor del IVA</th>
-          <th>Total con IVA</th>
-          <th>Acciones</th>
-        </tr>
+      <tfoot id="mostrar-totales">
       </tfoot>
     </table>
-
 
     <!-- Modal -->
     <div class="modal fade" id="agregar_nomina" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
@@ -117,6 +107,43 @@
                 <input type="number" class="form-control" name="txtCantidad" id="txtCantidad" placeholder="10">
               </div>
               <button type="submit" class="btn btn-primary">Guardar <i class="far fa-save ms-1"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="agregar_cliente" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success">
+            <h5 class="modal-title" id="staticBackdropLabel">Registro cliente</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form class="row g-3" id="formCliente">
+              <div class="col-md-6">
+                <label for="txtNombreCli" class="form-label">Nombre cliente</label>
+                <input type="text" class="form-control" name="txtNombreCli" id="txtNombreCli" placeholder="Carlos">
+              </div>
+              <div class="col-md-6">
+                <label for="txtApellidosCli" class="form-label">Apellidos cliente</label>
+                <input type="text" class="form-control" name="txtApellidosCli" id="txtApellidosCli"
+                  placeholder="Azaustre">
+              </div>
+              <div class="col-md-6">
+                <label for="txtNumDocCli" class="form-label">Num Doc cliente</label>
+                <input type="text" class="form-control" name="txtNumDocCli" id="txtNumDocCli" placeholder="10346532">
+              </div>
+              <div class="col-md-6">
+                <label for="txtTelefonoCli" class="form-label">Teléfono cliente</label>
+                <input type="text" class="form-control" name="txtTelefonoCli" id="txtTelefonoCli"
+                  placeholder="3123456798">
+              </div>
+              <button type="submit" class="btn btn-primary" id="boton-cliente">Guardar <i
+                  class="far fa-save ms-1"></i></button>
             </form>
           </div>
         </div>

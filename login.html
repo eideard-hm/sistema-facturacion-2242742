@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="img/Logo programa.png" alt="" width="50" height="50">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <span class="badge bg-light text-dark" role="button">
+                        <a class="nav-link" href="login.html">Cerrrar sesión</a></span>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-3">
+        <div class="row d-flex justify-content-center">
+            <form class="row g-3 col-md-6" id="form">
+                <div class="col-md-6">
+                    <label for="txtUsuario" class="form-label">Usuario</label>
+                    <input type="text" class="form-control" id="txtUsuario" name="txtUsuario" placeholder="Usuario">
+                </div>
+                <div class="col-md-6">
+                    <label for="txtPass" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="txtPass" name="txtPass" placeholder="Contraseña">
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary boton_ingresar">Ingresar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="js/login.js"></script>
+</body>
+
+</html>
