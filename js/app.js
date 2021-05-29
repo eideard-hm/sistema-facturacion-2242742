@@ -8,7 +8,6 @@ let guardarDatosCliente = [];
 let guardarInformacion = [];
 const inputs = document.querySelectorAll('#form input')
 const inputsCliente = document.querySelectorAll('#formCliente input');
-let contador = 0;
 
 //expresiones regualares para validar la información introducida en los campos
 const expresiones = {
@@ -71,14 +70,21 @@ addEventListener('DOMContentLoaded', () => {
         guardarDatosCliente = JSON.parse(localStorage.getItem('cliente'));
         mostrarDatosCliente();
     }
-    if (localStorage.getItem('contador')) {
-        contador = JSON.parse(localStorage.getItem('contador'));
-        // guardarCliente();
-    }
+    permisosBotones();
     document.querySelector('#exportar-pdf').addEventListener('click', () => {
         generarPdf();
     })
 });
+
+const permisosBotones = () => {
+    if (guardarDatosCliente.length === 0) {
+        document.getElementById('agregar-cliente').removeAttribute('disabled');
+        document.getElementById('agregar-producto').setAttribute('disabled', 'disabled');
+    } else {
+        document.getElementById('agregar-cliente').setAttribute('disabled', 'disabled');
+        document.getElementById('agregar-producto').removeAttribute('disabled');
+    }
+}
 
 const generarPdf = () => {
     const documentoAConvertir = document.querySelector('#elementos-para-convertir');
@@ -197,8 +203,6 @@ mostrarDatos.addEventListener('click', e => {
 nuevaFacturacion.addEventListener('click', () => {
     guardarInformacion = [];
     guardarDatosCliente = [];
-    contador = 0;
-    localStorage.removeItem('contador');
     mostrarVectores();
     mostrarDatosCliente();
     window.location.reload();
@@ -221,25 +225,12 @@ const guardarCliente = () => {
             numDocCliente,
             telefonoCliente
         }
-
-        if (contador === 0) {
-            contador = 1;
-            localStorage.setItem('contador', JSON.stringify(contador))
-            guardarDatosCliente.push(datosCliente);
-            swal("Registro exitoso", `El cliente ${datosCliente.nombreCliente} ha sido registrado exitosamente :)`, "success");
-            formCliente.reset();
-            $('#agregar_cliente').modal("hide");//nos derigimos a la modal y lo ocultamos
-            inputsCliente.forEach(input => input.setAttribute('disabled', 'disabled'));
-            document.getElementById('boton-cliente').setAttribute('disabled', 'disabled');
-            mostrarDatosCliente();
-        } else {
-            swal("Error", `No puede agregar más de un cliente para una misma facturación`, "warning");
-            formCliente.reset();
-            $('#agregar_cliente').modal("hide");//nos derigimos a la modal y lo ocultamos
-            inputsCliente.forEach(input => input.setAttribute('disabled', 'disabled'));
-            document.getElementById('boton-cliente').setAttribute('disabled', 'disabled');
-            mostrarDatosCliente();
-        }
+        guardarDatosCliente.push(datosCliente);
+        swal("Registro exitoso", `El cliente ${datosCliente.nombreCliente} ha sido registrado exitosamente :)`, "success");
+        formCliente.reset();
+        $('#agregar_cliente').modal("hide");//nos derigimos a la modal y lo ocultamos
+        permisosBotones();
+        mostrarDatosCliente();
     }
 }
 const mostrarDatosCliente = () => {
@@ -268,7 +259,6 @@ const mostrarDatosCliente = () => {
 }
 
 const cargarVectores = () => {
-
     if (campos.nombre === false || campos.porIva === false || campos.precioConIva === false || campos.cantidad === false) {
         swal("Datos incorrectos!", "Los datos introducidos en los campos son incorrectos. Intente nuevamente!", "error");
         return;
@@ -336,6 +326,7 @@ const cargarVectores = () => {
         form.reset();
         // window.location.reload();
         $('#agregar_nomina').modal("hide");//nos derigimos a la modal y lo ocultamos
+        permisosBotones();
         mostrarVectores();
     }
 }
@@ -369,6 +360,10 @@ const mostrarVectores = () => {
         </tr>`
         // console.log(mostrarDatos);
     })
+    let cantidad = guardarInformacion.reduce((total, item) => {
+        return total += item.cantidad;
+    }, 0);
+
     let subtotal = guardarInformacion.reduce((total, item) => {
         return total += item.subtotalSinIva;
     }, 0);
@@ -377,13 +372,17 @@ const mostrarVectores = () => {
         return total += item.valorIva;
     }, 0);
 
-    let totalAPagar = guardarInformacion.reduce((total, item) => {
-        return total += item.totalConIva;
-    }, 0);
+    let totalAPagar = subtotal + totalValorIva;
 
-    let cantidad = guardarInformacion.reduce((total, item) => {
-        return total += item.cantidad;
-    }, 0);
+    if (totalAPagar > 999999) {
+        subtotal = subtotal - (subtotal * 0.1);
+        totalAPagar = subtotal + totalValorIva;
+    } else if (totalAPagar > 2000000) {
+        subtotal = subtotal - (subtotal * 0.15);
+        totalAPagar = subtotal + totalValorIva;
+    } else {
+        subtotal = subtotal;
+    }
 
     subtotal = formatterPeso.format(subtotal);
     totalValorIva = formatterPeso.format(totalValorIva);
