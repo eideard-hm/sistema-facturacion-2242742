@@ -80,9 +80,13 @@ const permisosBotones = () => {
     if (guardarDatosCliente.length === 0) {
         document.getElementById('agregar-cliente').removeAttribute('disabled');
         document.getElementById('agregar-producto').setAttribute('disabled', 'disabled');
+        document.getElementById('nueva-facturacion').setAttribute('disabled', 'disabled');
+        document.getElementById('exportar-pdf').setAttribute('disabled', 'disabled');
     } else {
         document.getElementById('agregar-cliente').setAttribute('disabled', 'disabled');
         document.getElementById('agregar-producto').removeAttribute('disabled');
+        document.getElementById('exportar-pdf').removeAttribute('disabled');
+        document.getElementById('nueva-facturacion').removeAttribute('disabled');
     }
 }
 
@@ -374,12 +378,14 @@ const mostrarVectores = () => {
 
     let totalAPagar = subtotal + totalValorIva;
 
-    if (totalAPagar > 999999) {
+    if (totalAPagar > 999999 && totalAPagar < 2000000) {
         subtotal = subtotal - (subtotal * 0.1);
         totalAPagar = subtotal + totalValorIva;
+        swal("Enhorabuena tienes un descuento del 10%!", "Le hemos hecho un descuento del 10% sobre el subtotal, dado que su compra es mayor a $ 999.999 mil pesos.", "success");
     } else if (totalAPagar > 2000000) {
         subtotal = subtotal - (subtotal * 0.15);
         totalAPagar = subtotal + totalValorIva;
+        swal("Enhorabuena tienes un descuento del 15%!", "Le hemos hecho un descuento del 15% sobre el subtotal, dado que su compra es mayor a $ 2.000.000 millones de pesos.", "success");
     } else {
         subtotal = subtotal;
     }
